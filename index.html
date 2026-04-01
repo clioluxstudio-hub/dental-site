@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>BrightSmile Dental | Modern & Gentle Care</title>
+  <!-- Google Fonts + Font Awesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Leaflet CSS for map (lightweight, modern) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #ffffff;
+      color: #1E2A3E;
+      line-height: 1.5;
+      scroll-behavior: smooth;
+    }
+
+    /* Color variables - clean blue/white theme */
+    :root {
+      --primary: #0A66C2;
+      --primary-dark: #004c97;
+      --primary-light: #eef4fc;
+      --accent: #47b5ff;
+      --gray-bg: #f8fafc;
+      --gray-border: #e2e8f0;
+      --text-dark: #0f172a;
+      --text-muted: #475569;
+      --white: #ffffff;
+      --shadow-sm: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+      --shadow-md: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: var(--white);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(2px);
+      border-bottom: 1px solid var(--gray-border);
+    }
+    .nav-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      flex-wrap: wrap;
+    }
+    .logo h2 {
+      font-weight: 700;
+      font-size: 1.7rem;
+      color: var(--primary);
+      letter-spacing: -0.3px;
+    }
+    .logo span {
+      font-weight: 400;
+      color: var(--text-dark);
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none;
+      font-weight: 500;
+      color: var(--text-dark);
+      transition: 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--primary);
+    }
+    .menu-icon {
+      display: none;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: var(--primary);
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-block;
+      text-decoration: none;
+      box-shadow: 0 2px 5px rgba(10,102,194,0.2);
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px -5px rgba(10,102,194,0.3);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--primary);
+      color: var(--primary);
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 600;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+    .btn-outline:hover {
+      background: var(--primary-light);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 80px 0 70px;
+      background: linear-gradient(135deg, #f9fcff 0%, #ffffff 100%);
+    }
+    .hero-grid {
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+    .hero-content {
+      flex: 1;
+    }
+    .hero-content h1 {
+      font-size: 3.2rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1.2rem;
+      color: var(--text-dark);
+    }
+    .hero-content p {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      max-width: 90%;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .hero-image {
+      flex: 1;
+      text-align: center;
+    }
+    .hero-image img {
+      max-width: 100%;
+      border-radius: 32px;
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Section styles */
+    section {
+      padding: 80px 0;
+    }
+    .section-title {
+      text-align: center;
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+    .section-sub {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 3rem;
+      font-size: 1.1rem;
+    }
+
+    /* Services cards */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+    .service-card {
+      background: white;
+      border-radius: 28px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+      border: 1px solid var(--gray-border);
+    }
+    .service-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 25px 30px -12px rgba(0,0,0,0.1);
+      border-color: var(--primary-light);
+    }
+    .service-icon {
+      font-size: 2.8rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    .service-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .service-card p {
+      color: var(--text-muted);
+    }
+
+    /* Appointment form */
+    .appointment-section {
+      background: var(--primary-light);
+    }
+    .form-card {
+      background: white;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 2.5rem;
+      border-radius: 32px;
+      box-shadow: var(--shadow-md);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+    }
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+    .form-group label {
+      font-weight: 500;
+      display: block;
+      margin-bottom: 0.4rem;
+      color: var(--text-dark);
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--gray-border);
+      border-radius: 24px;
+      font-family: inherit;
+      transition: 0.2s;
+      background: #fefefe;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(10,102,194,0.1);
+    }
+    .btn-block {
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+    }
+    .form-status {
+      margin-top: 1rem;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* Testimonials Slider */
+    .testimonials-section {
+      background: var(--white);
+    }
+    .slider-container {
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+      border-radius: 32px;
+    }
+    .testimonial-slider {
+      display: flex;
+      transition: transform 0.4s ease-in-out;
+    }
+    .testimonial-card {
+      flex: 0 0 100%;
+      padding: 2rem 2rem;
+      background: var(--gray-bg);
+      border-radius: 28px;
+      text-align: center;
+      margin: 0.5rem;
+      box-sizing: border-box;
+    }
+    .testimonial-card p {
+      font-size: 1.2rem;
+      font-style: italic;
+      color: #1e293b;
+      margin-bottom: 1.2rem;
+    }
+    .client-name {
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .client-title {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .stars {
+      color: #fbbf24;
+      margin-bottom: 1rem;
+    }
+    .slider-controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .slider-btn {
+      background: var(--primary-light);
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 60px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: 0.2s;
+      color: var(--primary);
+    }
+    .slider-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+    .dots {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 1rem;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      background: #cbd5e1;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .dot.active {
+      background: var(--primary);
+      width: 26px;
+      border-radius: 12px;
+    }
+
+    /* Contact & Map */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      background: var(--white);
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .contact-info {
+      padding: 2rem;
+      background: var(--primary-light);
+    }
+    .contact-info h3 {
+      font-size: 1.7rem;
+      margin-bottom: 1.5rem;
+    }
+    .contact-details p {
+      margin: 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .contact-details i {
+      width: 30px;
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+    .map-container {
+      height: 100%;
+      min-height: 320px;
+    }
+    #map {
+      height: 100%;
+      width: 100%;
+      min-height: 320px;
+    }
+    footer {
+      background: #0f172a;
+      color: #cbd5e1;
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 880px) {
+      .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        background: white;
+        padding: 1rem 0;
+        gap: 1rem;
+        text-align: center;
+      }
+      .nav-links.show {
+        display: flex;
+      }
+      .menu-icon {
+        display: block;
+      }
+      .hero-grid {
+        flex-direction: column-reverse;
+        text-align: center;
+      }
+      .hero-content p {
+        max-width: 100%;
+      }
+      .hero-buttons {
+        justify-content: center;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+      .section-title {
+        font-size: 1.9rem;
+      }
+    }
+    @media (max-width: 520px) {
+      .container {
+        padding: 0 18px;
+      }
+      .form-card {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container nav-flex">
+    <div class="logo">
+      <h2>Bright<span>Smile</span> <i class="fas fa-tooth" style="color:#0A66C2;"></i></h2>
+    </div>
+    <div class="menu-icon" id="menuToggle">
+      <i class="fas fa-bars"></i>
+    </div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#appointment">Book Now</a></li>
+      <li><a href="#testimonials">Reviews</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <!-- Hero Section -->
+  <section id="home" class="hero">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <h1>Precision & Care <br> For Your Perfect Smile</h1>
+        <p>Experience modern dentistry with a gentle touch. From routine checkups to advanced cosmetic procedures, we prioritize your comfort and health.</p>
+        <div class="hero-buttons">
+          <a href="#appointment" class="btn-primary">Book Appointment <i class="fas fa-calendar-check"></i></a>
+          <a href="#services" class="btn-outline">Explore Services</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="https://placehold.co/600x500/eef4fc/0A66C2?text=Smile+Modern+Dental" alt="Dental Clinic Hero">
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services">
+    <div class="container">
+      <h2 class="section-title">Our Premium Services</h2>
+      <p class="section-sub">High-tech equipment, compassionate experts</p>
+      <div class="services-grid">
+        <div class="service-card"><div class="service-icon"><i class="fas fa-teeth-open"></i></div><h3>Teeth Whitening</h3><p>Professional whitening for a radiant smile in just one session.</p></div>
+        <div class="service-card"><div class="service-icon"><i class="fas fa-crown"></i></div><h3>Dental Crowns</h3><p>Strong, natural-looking crowns to restore function & aesthetics.</p></div>
+        <div class="service-card"><div class="service-icon"><i class="fas fa-baby-carriage"></i></div><h3>Pediatric Care</h3><p>Gentle, fun dental visits for children from toddlers to teens.</p></div>
+        <div class="service-card"><div class="service-icon"><i class="fas fa-braces"></i></div><h3>Orthodontics</h3><p>Invisalign & braces for perfectly aligned teeth.</p></div>
+        <div class="service-card"><div class="service-icon"><i class="fas fa-microscope"></i></div><h3>Root Canal</h3><p>Pain-free endodontic treatments with modern tech.</p></div>
+        <div class="service-card"><div class="service-icon"><i class="fas fa-smile"></i></div><h3>Cosmetic Bonding</h3><p>Repair chips & gaps for a seamless smile.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Appointment Booking Form -->
+  <section id="appointment" class="appointment-section">
+    <div class="container">
+      <h2 class="section-title">Schedule Your Visit</h2>
+      <p class="section-sub">Fill the form and we’ll confirm within 2 hours</p>
+      <div class="form-card">
+        <form id="bookingForm">
+          <div class="form-row">
+            <div class="form-group"><label>Full name *</label><input type="text" id="fullName" placeholder="John Smith" required></div>
+            <div class="form-group"><label>Email *</label><input type="email" id="email" placeholder="hello@example.com" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Phone *</label><input type="tel" id="phone" placeholder="(123) 456-7890" required></div>
+            <div class="form-group"><label>Preferred Date *</label><input type="date" id="appDate" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Service Type</label><select id="serviceSelect"><option>Teeth Whitening</option><option>Dental Crown</option><option>Pediatric Care</option><option>Orthodontics</option><option>Root Canal</option><option>Cosmetic Bonding</option><option>General Checkup</option></select></div>
+            <div class="form-group"><label>Preferred Time</label><select id="timeSlot"><option>09:00 AM</option><option>11:00 AM</option><option>01:30 PM</option><option>03:30 PM</option><option>05:00 PM</option></select></div>
+          </div>
+          <div class="form-group"><label>Additional Notes</label><textarea rows="2" id="notes" placeholder="Any special requests?"></textarea></div>
+          <button type="submit" class="btn-primary btn-block">Confirm Appointment <i class="fas fa-arrow-right"></i></button>
+          <div id="formFeedback" class="form-status"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Slider -->
+  <section id="testimonials" class="testimonials-section">
+    <div class="container">
+      <h2 class="section-title">What Our Patients Say</h2>
+      <p class="section-sub">Over 2000+ happy smiles</p>
+      <div class="slider-container">
+        <div class="testimonial-slider" id="testimonialSlider">
+          <div class="testimonial-card"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>"Absolutely amazing clinic! The staff is so kind and the new laser technology made my filling painless. Highly recommend."</p><div class="client-name">— Sarah M.</div><div class="client-title">Verified Patient</div></div>
+          <div class="testimonial-card"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>"I was terrified of dentists, but Dr. Lee and the team made me feel at ease. The office is spotless and modern. 5 stars!"</p><div class="client-name">— James Carter</div><div class="client-title">Root Canal Patient</div></div>
+          <div class="testimonial-card"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div><p>"My kids actually look forward to their checkups thanks to the pediatric specialists. Wonderful environment!"</p><div class="client-name">— Linda Rodriguez</div><div class="client-title">Mom of two</div></div>
+          <div class="testimonial-card"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>"Got Invisalign here, the results are breathtaking. The staff explains everything clearly. Couldn't be happier!"</p><div class="client-name">— Michael T.</div><div class="client-title">Ortho Patient</div></div>
+        </div>
+        <div class="slider-controls"><button class="slider-btn" id="prevSlide"><i class="fas fa-chevron-left"></i></button><button class="slider-btn" id="nextSlide"><i class="fas fa-chevron-right"></i></button></div>
+        <div class="dots" id="dotsContainer"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section with Map -->
+  <section id="contact">
+    <div class="container">
+      <h2 class="section-title">Visit Our Clinic</h2>
+      <p class="section-sub">We are centrally located with easy parking</p>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <h3>Get In Touch</h3>
+          <div class="contact-details">
+            <p><i class="fas fa-map-marker-alt"></i> 123 Wellness Avenue, Suite 200, Austin, TX 78701</p>
+            <p><i class="fas fa-phone-alt"></i> (512) 555-1234</p>
+            <p><i class="fas fa-envelope"></i> hello@brightsmiledental.com</p>
+            <p><i class="fas fa-clock"></i> Mon-Fri: 8:00 AM - 6:00 PM, Sat: 9:00 AM - 2:00 PM</p>
+          </div>
+        </div>
+        <div class="map-container">
+          <div id="map"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2025 BrightSmile Dental. Modern dentistry with compassion. All rights reserved.</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  // Mobile menu toggle
+  const menuToggle = document.getElementById('menuToggle');
+  const navLinks = document.getElementById('navLinks');
+  menuToggle.addEventListener('click', () => {
+    navLinks.classList.toggle('show');
+  });
+  // close on link click
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => navLinks.classList.remove('show'));
+  });
+
+  // Appointment form handler (production ready simulation)
+  const bookingForm = document.getElementById('bookingForm');
+  const feedbackDiv = document.getElementById('formFeedback');
+  bookingForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const appDate = document.getElementById('appDate').value;
+    if(!name || !email || !phone || !appDate) {
+      feedbackDiv.innerHTML = '<span style="color:#d9534f;">❌ Please fill all required fields.</span>';
+      return;
+    }
+    if(!email.includes('@')) {
+      feedbackDiv.innerHTML = '<span style="color:#d9534f;">⚠️ Enter a valid email address.</span>';
+      return;
+    }
+    feedbackDiv.innerHTML = '<span style="color:#2b6e3b;">✅ Appointment request sent! We’ll contact you shortly.</span>';
+    bookingForm.reset();
+    setTimeout(() => feedbackDiv.innerHTML = '', 3500);
+  });
+
+  // ---------- Testimonials Slider (pure JS, smooth) ----------
+  const slider = document.getElementById('testimonialSlider');
+  const slides = document.querySelectorAll('.testimonial-card');
+  const prevBtn = document.getElementById('prevSlide');
+  const nextBtn = document.getElementById('nextSlide');
+  const dotsContainer = document.getElementById('dotsContainer');
+  let currentIndex = 0;
+  const totalSlides = slides.length;
+
+  function updateSlider() {
+    slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+    // update dots active class
+    document.querySelectorAll('.dot').forEach((dot, idx) => {
+      if(idx === currentIndex) dot.classList.add('active');
+      else dot.classList.remove('active');
+    });
+  }
+  function createDots() {
+    dotsContainer.innerHTML = '';
+    for(let i=0; i<totalSlides; i++) {
+      const dot = document.createElement('div');
+      dot.classList.add('dot');
+      if(i === currentIndex) dot.classList.add('active');
+      dot.addEventListener('click', () => {
+        currentIndex = i;
+        updateSlider();
+      });
+      dotsContainer.appendChild(dot);
+    }
+  }
+  nextBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % totalSlides;
+    updateSlider();
+  });
+  prevBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+    updateSlider();
+  });
+  createDots();
+  // Optional: auto-slide every 6 seconds (non-intrusive)
+  let autoInterval = setInterval(() => {
+    currentIndex = (currentIndex + 1) % totalSlides;
+    updateSlider();
+  }, 6000);
+  slider.parentElement.addEventListener('mouseenter', () => clearInterval(autoInterval));
+  slider.parentElement.addEventListener('mouseleave', () => {
+    autoInterval = setInterval(() => {
+      currentIndex = (currentIndex + 1) % totalSlides;
+      updateSlider();
+    }, 6000);
+  });
+
+  // ---------- Leaflet Map (modern, clean) ----------
+  // Coordinates for Austin, TX (example: 123 Wellness Ave)
+  const mapCenter = [30.2672, -97.7431]; // Austin downtown coordinates
+  const map = L.map('map').setView(mapCenter, 14);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> & CartoDB',
+    subdomains: 'abcd',
+    minZoom: 10,
+    maxZoom: 18
+  }).addTo(map);
+  // custom marker with dental icon
+  const customIcon = L.divIcon({
+    html: '<i class="fas fa-tooth" style="font-size: 28px; color: #0A66C2; background: white; padding: 6px; border-radius: 50%; box-shadow: 0 2px 10px rgba(0,0,0,0.2); border: 2px solid white;"></i>',
+    iconSize: [40, 40],
+    popupAnchor: [0, -20],
+    className: 'custom-marker-dental'
+  });
+  L.marker(mapCenter, { icon: customIcon }).addTo(map)
+    .bindPopup('<b>BrightSmile Dental</b><br>123 Wellness Ave, Austin TX')
+    .openPopup();
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      if(href === "#" || href === "") return;
+      const targetEl = document.querySelector(href);
+      if(targetEl) {
+        e.preventDefault();
+        targetEl.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+
+  // set min date for appointment (today)
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('appDate').setAttribute('min', today);
+</script>
+</body>
+</html>
